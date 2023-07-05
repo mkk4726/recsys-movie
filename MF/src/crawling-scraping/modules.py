@@ -36,7 +36,7 @@ def load_pickle(path):
   with open(path, 'rb') as handle:
     return pickle.load(handle)
 
-def get_review(title_id: str, verbose: bool=False) -> tuple[str, "pd.DataFrame"]:
+def get_review(title_id: str, verbose: bool=True) -> tuple[str, "pd.DataFrame"]:
   
   """IMDb에서 review data를 sraping해오는 func
   + dynamic crawling으로 전체 review 데이터 긁어오기
@@ -53,21 +53,21 @@ def get_review(title_id: str, verbose: bool=False) -> tuple[str, "pd.DataFrame"]
   # spolier 같은 경우는 접혀있어서 눌러서 봐야함. 따라서 오류가 생긴다. Hide Spoiler옵션 누른 url로 대체
   url = f'https://www.imdb.com/title/{title_id}/reviews?spoiler=hide&sort=totalVotes&dir=desc&ratingFilter=0'
 
-  options = webdriver.ChromeOptions()
-  options.add_argument('headless')
-  options.add_experimental_option('excludeSwitches', ['enable-logging'])
+  options = webdriver.ChromeOptions() # 옵션 설정
+  options.add_argument('headless') # 화면에 안뜨게 하기
+  options.add_experimental_option('excludeSwitches', ['enable-logging']) # log 안뜨게 하기
 
-  # driver = webdriver.Chrome('./chromedriver.exe', options=options)
-  driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+  driver = webdriver.Chrome('./chromedriver.exe', options=options) # 구버전
+  # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options) # 신버전
   driver.get(url)
   
-  load_more_button_xpath = '//*[@id="load-more-trigger"]'  
+  load_more_button_xpath = '//*[@id="load-more-trigger"]'  # 더보기 버튼 XPath
 
   # Load More 싹다 누르기
   while True:
     try:
-      load_more_button = driver.find_element(By.XPATH, load_more_button_xpath)
-      load_more_button.send_keys(Keys.ENTER)
+      load_more_button = driver.find_element(By.XPATH, load_more_button_xpath) # 버튼 찾기
+      load_more_button.send_keys(Keys.ENTER) # 버튼 누르기
       time.sleep(1)
     except Exception as e:
       # print(e)
